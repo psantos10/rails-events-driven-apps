@@ -1,0 +1,30 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Payment requests</h1>
+
+<div id="payment_requests">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Description</th>
+        <th scope="col">Amount</th>
+        <th scope="col">Currency</th>
+        <th scope="col">Status</th>
+      </th>
+    </thead>
+    <tbody>
+      <% @payment_requests.each do |payment_request| %>
+        <tr>
+          <th scope="row"><%= link_to payment_request.id, payment_request %></th>
+          <td><%= link_to payment_request.description, payment_request %></td>
+          <td><%= payment_request.amount %></td>
+          <td><%= payment_request.currency %></td>
+          <td><%= payment_request_status_badge(payment_request.status) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<%= link_to "Request new payment", new_payment_request_path, class: 'btn btn-info' %>

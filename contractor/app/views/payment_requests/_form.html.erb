@@ -1,0 +1,32 @@
+<%= form_with(model: payment_request) do |form| %>
+  <% if payment_request.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(payment_request.errors.count, "error") %> prohibited this payment_request from being saved:</h2>
+
+      <ul>
+        <% payment_request.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :amount, style: "display: block" %>
+    <%= form.number_field :amount, step: '.01', class: 'form-control' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :currency, style: "display: block" %>
+    <%= form.select :currency, [ ['Euro', 'EUR'], ['Pound sterling', 'GBP'], ['US Dollar', 'USD']], {}, class: 'form-select' %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :description, style: "display: block" %>
+    <%= form.text_area :description, class: 'form-control' %>
+  </div>
+
+  <div>
+    <%= form.submit 'Request Payment', class: 'btn btn-primary' %>
+  </div>
+<% end %>
