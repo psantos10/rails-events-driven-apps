@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: root
+    volumes:
+      - ./config/postgres.conf:/etc/postgresql/postgresql.conf
+      - ./data/db:/var/lib/postgresql/data
+    ports:
+      - "15432:5432"
+    expose:
+      - "5432"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    expose:
+      - "5672"
+
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes
+    volumes:
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./data/redis:/data
+    ports:
+      - "16379:6379"
+    expose:
+      - "6379"

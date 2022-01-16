@@ -1,0 +1,5 @@
+data/db
+data/*
+!data/.keep
+
+*.code-workspace
