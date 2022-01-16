@@ -1,0 +1,20 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Description</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Currency</th>
+      <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% payment_requests.each do |payment_request| %>
+      <tr>
+        <td><%= payment_request.description %></td>
+        <td><%= payment_request.amount %></td>
+        <td><%= payment_request.currency %></td>
+        <td><%= payment_request_status_badge(payment_request.status) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
