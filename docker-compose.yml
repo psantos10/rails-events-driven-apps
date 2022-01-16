@@ -3,7 +3,6 @@ version: '3'
 services:
   db:
     image: postgres:14.1-alpine
-    restart: always
     environment:
       POSTGRES_PASSWORD: root
     volumes:
@@ -16,7 +15,6 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
-    restart: always
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -29,7 +27,6 @@ services:
 
   redis:
     image: redis:6.2-alpine
-    restart: always
     command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes
     volumes:
       - ./config/redis.conf:/usr/local/etc/redis/redis.conf
@@ -38,3 +35,100 @@ services:
       - "16379:6379"
     expose:
       - "6379"
+
+  contractor-web:
+    build:
+      context: ./contractor
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3000"
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+    environment:
+      DB_HOST: db
+      DB_USERNAME: postgres
+      DB_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_API_HOST: rabbitmq
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./contractor:/app
+
+  contractor-sidekiq:
+    build:
+      context: ./contractor
+      dockerfile: Dockerfile.dev
+    command: bundle exec sidekiq
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+    environment:
+      DB_HOST: db
+      DB_USERNAME: postgres
+      DB_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_API_HOST: rabbitmq
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./contractor:/app
+
+  contractor-consumer:
+    build:
+      context: ./contractor
+      dockerfile: Dockerfile.dev
+    command: dockerize -wait tcp://rabbitmq:5672 -timeout 30s bundle exec hutch
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+    environment:
+      DB_HOST: db
+      DB_USERNAME: postgres
+      DB_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_API_HOST: rabbitmq
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./contractor:/app
+
+  manager-web:
+    build:
+      context: ./manager
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3002:3000"
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+    environment:
+      DB_HOST: db
+      DB_USERNAME: postgres
+      DB_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_API_HOST: rabbitmq
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./manager:/app
+
+  manager-consumer:
+    build:
+      context: ./manager
+      dockerfile: Dockerfile.dev
+    command: dockerize -wait tcp://rabbitmq:5672 -timeout 30s bundle exec hutch
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+    environment:
+      DB_HOST: db
+      DB_USERNAME: postgres
+      DB_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_API_HOST: rabbitmq
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./manager:/app

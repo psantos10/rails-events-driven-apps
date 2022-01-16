@@ -1,0 +1,37 @@
+FROM ruby:3.1-alpine
+
+RUN apk add --update --virtual \
+  runtime-deps \
+  build-base \
+  file \
+  git \
+  libc-dev \
+  libffi-dev \
+  libxml2-dev \
+  libxslt-dev \
+  linux-headers \
+  nodejs \
+  openssl \
+  postgresql-client \
+  postgresql-dev \
+  readline \
+  readline-dev \
+  tzdata \
+  yarn \
+  && rm -rf /var/cache/apk/*
+
+ENV DOCKERIZE_VERSION v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+  && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+  && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
+WORKDIR /app
+COPY . /app/
+
+ENV BUNDLE_PATH /gems
+RUN yarn install
+RUN bundle install
+
+CMD [ "bin/rails", "s", "-b", "0.0.0.0" ]
+
+EXPOSE 3000
