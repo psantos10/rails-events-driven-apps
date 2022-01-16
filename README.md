@@ -1,1 +1,1 @@
-# Pilot Challenge Orchestrator
+# Rails Event Driven Apps with RabbitMQ
